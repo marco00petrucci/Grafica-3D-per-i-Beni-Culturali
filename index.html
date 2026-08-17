@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="it">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Burlamacco 3D — Digitalizzazione e Fasi di Lavorazione della Cartapesta di Viareggio</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="favicon.png" type="image/png" />
+
+  <!--FONTS-->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet" />
+
+  <!--STYLESHEET-->
+  <link type="text/css" rel="stylesheet" href="style.css" />
+
+  <!--SPIDERGL-->
+  <script type="text/javascript" src="js/spidergl.js"></script>
+
+  <!--JQUERY-->
+  <script type="text/javascript" src="js/jquery.js"></script>
+
+  <!--PRESENTER-->
+  <script type="text/javascript" src="js/presenter.js"></script>
+
+  <!--3D MODELS LOADING AND RENDERING-->
+  <script type="text/javascript" src="js/nexus.js"></script>
+  <script type="text/javascript" src="js/ply.js"></script>
+
+  <!--TRACKBALLS-->
+  <script type="text/javascript" src="js/trackball_sphere.js"></script>
+  <script type="text/javascript" src="js/trackball_turntable.js"></script>
+  <script type="text/javascript" src="js/trackball_turntable_pan.js"></script>
+  <script type="text/javascript" src="js/trackball_pantilt.js"></script>
+
+  <!--UTILITY-->
+  <script type="text/javascript" src="js/init.js"></script>
+</head>
+
+<body>
+
+  <!-- ================= NAV ================= -->
+  <nav class="nav">
+    <a href="#" class="nav__brand">
+      <img src="favicon.png" alt="Burlamacco 3D" class="nav__logo">
+      <span class="nav__title">Burlamacco 3D</span>
+    </a>
+    <div class="nav__links">
+      <a href="#patrimonio">Processo e Modelli 3D</a>
+      <a href="#storia">Storia</a>
+      <a href="#chi-sono">Chi sono</a>
+    </div>
+  </nav>
+
+  <!-- ================= HERO ================= -->
+  <header class="hero" id="hero">
+    <video class="hero__video" autoplay muted loop playsinline poster="">
+      <source src="burlamacca.mp4" type="video/mp4" />
+    </video>
+    <div class="hero__overlay" aria-hidden="true"></div>
+    <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+    <div class="hero__inner">
+      <p class="hero__eyebrow">Progetto per l'esame di Grafica 3D per i Beni Culturali · Informatica Umanistica</p>
+      <h1 class="hero__title">
+        Scopri le fasi di realizzazione dei carri allegorici: <span class="ink ink--clay">creta</span>,
+        <span class="ink ink--plaster">gesso</span>,
+        <span class="ink ink--paper">cartapesta</span>
+        e <span class="ink ink--paint">colore</span>
+      </h1>
+      <p class="hero__sub">Digitalizzazione e visualizzazione tridimensionale interattiva delle fasi tecnico-artistiche della tradizione carnevalesca di Viareggio.</p>
+      <a href="#patrimonio" class="hero__cta">Esplora i modelli 3D <span class="hero__cta-arrow">↓</span></a>
+    </div>
+    <div class="hero__scroll-hint" aria-hidden="true"></div>
+  </header>
+
+  <!-- ================= 01. CARTAPESTA & PATRIMONIO ================= -->
+  <section class="section patrimonio" id="patrimonio">
+    <div class="section__label section__label--center">
+      <span class="section__eyebrow">01</span>
+      <h2>Come nasce un elemento in cartapesta</h2>
+      <p class="section__intro">Attraverso la scansione tridimensionale del volto di Burlamacco, maschera ufficiale del Carnevale di Viareggio, il seguente sito documenta la sequenza esecutiva del manufatto. Il visualizzatore interattivo consente l'esplorazione geometrica e materica dei modelli acquisiti lungo le fasi di lavorazione.</p>
+    </div>
+
+    <div class="patrimonio__grid">
+
+      <!-- Testi Descrittivi delle Fasi (Sinistra) -->
+      <div class="patrimonio__text">
+        <div class="phase phase--calco">
+          <ol class="steps steps--vertical phase__sticky">
+            <li class="step step--clay" data-step="1" data-model="calco">
+              <div class="step__num">01</div>
+              <h3 class="step__title">Modellato in Argilla</h3>
+              <p class="step__text">Fase plastica originaria in cui viene modellato il prototipo in argilla da cui ricavare la forma. Per ragioni legate alla disponibilità del materiale, la matrice in creta non è stata digitalizzata: il percorso documentario ha inizio direttamente dalla scansione del suo negativo in gesso.</p>
+            </li>
+            <li class="step step--plaster" data-step="2" data-model="calco">
+              <div class="step__num">02</div>
+              <h3 class="step__title">Formatura e Negativo in Gesso</h3>
+              <p class="step__text">Applicazione del gesso sulla scultura per la realizzazione del calco in negativo, che costituirà la matrice rigida per la successiva fase di stampaggio.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="phase phase--cartapesta">
+          <ol class="steps steps--vertical phase__sticky">
+            <li class="step step--paper" data-step="3" data-model="cartapesta">
+              <div class="step__num">03</div>
+              <h3 class="step__title">Stratificazione della Carta a Calco</h3>
+              <p class="step__text">Nel negativo di gesso si stratificano fogli di carta di giornale, incollati con una semplice colla d'acqua e farina, fino a formare un guscio leggero e resistente.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="phase phase--colore">
+          <ol class="steps steps--vertical phase__sticky">
+            <li class="step step--paint" data-step="4" data-model="colore">
+              <div class="step__num">04</div>
+              <h3 class="step__title">Decorazione Pittorica</h3>
+              <p class="step__text">Una volta estratto dallo stampo ed essiccato, il positivo in cartapesta viene rifinito e preparato per la fase pittorica. La stesura del colore definisce l'aspetto espressivo e iconografico finale della maschera, preservando al contempo il rilievo materico sottostante.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div class="patrimonio__note">
+          <h3 class="patrimonio__note-title">Un patrimonio da conservare</h3>
+          <p>La tecnica della carta a calco, perfezionata a Viareggio nel 1925, non è solo un metodo costruttivo: è un linguaggio artigianale tramandato di maestro in allievo, oggi impiegato anche in scenografia, arredamento e didattica. È un sapere fatto di gesti manuali — la modellatura, la formatura, la stratificazione della carta — che rischia di restare senza documentazione visiva nel momento stesso in cui l'opera viene smontata o ridipinta. La scansione 3D permette di fissare digitalmente ogni fase del processo offrendo uno strumento di studio e tutela per un mestiere che appartiene a pieno titolo al patrimonio culturale immateriale.</p>
+          <p class="patrimonio__source">Riferimento: <a href="https://viareggio.ilcarnevale.com/carnevale-cittadella/tradizione/" target="_blank" rel="noopener">Fondazione Carnevale di Viareggio — La Tradizione</a></p>
+        </div>
+      </div>
+
+      <!-- Visualizzatore 3D (Destra) -->
+      <div class="patrimonio__viewer">
+        <div class="viewer-panel">
+
+          <!-- Tabs Selezione Modello -->
+          <div class="viewer-panel__tabs" id="model-tabs">
+            <button class="viewer-tab is-active" data-model="calco">01. Calco in Gesso</button>
+            <button class="viewer-tab" data-model="cartapesta">02. Supporto in Cartapesta</button>
+            <button class="viewer-tab" data-model="colore">03. Manufatto Dipinto</button>
+          </div>
+
+          <!-- Contenitore 3DHOP -->
+          <div id="3dhop" class="tdhop">
+            <div id="tdhlg"></div>
+
+            <!-- Toolbar Principale -->
+            <div class="viewer-toolbar" id="viewer-toolbar">
+              <button type="button" class="vtb" data-action="lighting" title="Controllo illuminazione" aria-pressed="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="4" />
+                  <path d="M12 2v2.5M12 19.5V22M4.2 4.2l1.8 1.8M18 18l1.8 1.8M2 12h2.5M19.5 12H22M4.2 19.8 6 18M18 6l1.8-1.8" />
+                </svg>
+              </button>
+              <button type="button" class="vtb" data-action="light" title="Direzione sorgente luminosa" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 16h6M10 19h4M12 2a5 5 0 0 0-3.5 8.5c.4.4.7 1 .8 1.5h5.4c.1-.5.4-1.1.8-1.5A5 5 0 0 0 12 2Z" />
+                  <path d="M5 9l-2 2m0 0l2 2m-2-2h4M19 9l2 2m0 0l-2 2m2-2h-4" stroke-width="1.4" />
+                </svg>
+              </button>
+              <button type="button" class="vtb" data-action="color" title="Modalità di rendering / Colore solido" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 3a9 9 0 1 0 0 18c1.4 0 1.9-.85 1.9-1.9 0-.5-.2-.9-.5-1.2-.3-.3-.4-.7-.4-1.1 0-.85.7-1.5 1.5-1.5H16a4 4 0 0 0 4-4c0-4.6-3.6-8.3-8-8.3Z" />
+                  <circle cx="7.5" cy="10.5" r=".9" />
+                  <circle cx="10.3" cy="7" r=".9" />
+                  <circle cx="15.3" cy="7.3" r=".9" />
+                  <circle cx="17" cy="11.3" r=".9" />
+                </svg>
+              </button>
+              <button type="button" class="vtb" data-action="camera" title="Proiezione prospettica / ortografica" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z" />
+                  <path d="M3 7l9 5 9-5M12 12v10" />
+                </svg>
+              </button>
+              <button type="button" class="vtb" data-action="hotspot" title="Punti di interesse (Hotspot)" aria-pressed="false">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s7-7.4 7-12a7 7 0 1 0-14 0c0 4.6 7 12 7 12Z" />
+                  <circle cx="12" cy="10" r="2.3" />
+                </svg>
+              </button>
+              <button type="button" class="vtb" data-action="screenshot" title="Cattura immagine">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+                  <circle cx="12" cy="13" r="3" />
+                </svg>
+              </button>
+            </div>
+
+            <!-- Canvas Disegno -->
+            <canvas id="draw-canvas"></canvas>
+
+            <!-- Lista viste -->
+            <div class="views-list">
+              <button type="button" class="view-text-btn" data-view="fronte" aria-pressed="true">Fronte</button>
+              <button type="button" class="view-text-btn" data-view="retro" aria-pressed="false">Retro</button>
+              <input type="range" id="viewer-zoom-slider" class="viewer-zoom__slider" min="0" max="100" value="50" step="1" title="Controllo Zoom" />
+              <button type="button" id="viewer-fullscreen" class="vtb" title="Visualizzazione a schermo intero">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" id="fullscreen-icon">
+                  <path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4" />
+                </svg>
+              </button>
+            </div>
+
+          </div>
+
+          <!-- Etichetta hotspot attivo -->
+          <p class="viewer-panel__spot-label" id="spot-label" hidden></p>
+          <p class="viewer-panel__hint">Interazione: trascinare con il cursore per ruotare · selezionare gli hotspot per i dettagli analitici</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= 02. STORIA ================= -->
+  <section class="section storia" id="storia">
+    <div class="section__label section__label--center">
+      <span class="section__eyebrow">02</span>
+      <h2>La storia del Carnevale</h2>
+      <p class="section__intro">Centocinquant'anni di satira, maschere e cartapesta: le tappe che hanno trasformato una sfilata di carrozze in un teatro viaggiante.</p>
+    </div>
+
+    <ol class="timeline">
+      <li class="timeline__item">
+        <span class="timeline__year">1873</span>
+        <div class="timeline__content">
+          <h3>Prime manifestazioni mascherate in Via Regia</h3>
+          <p>Il 25 febbraio 1873 si svolge la prima sfilata documentata di carrozze addobbate lungo Via Regia, segnando l'atto fondativo della manifestazione viareggina.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">1905</span>
+        <div class="timeline__content">
+          <h3>Trasferimento del circuito sui Viali a Mare</h3>
+          <p>L'itinerario delle sfilate viene trasferito lungo la passeggiata a mare, favorendo un incremento dimensionale delle strutture allegoriche.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">1925</span>
+        <div class="timeline__content">
+          <h3>Introduzione della tecnica della carta a calco</h3>
+          <p><a href="https://it.wikipedia.org/wiki/Antonio_D%27Arliano">Antonio D'Arliano</a> introduce formalmente l'uso della carta a calco su stampi di gesso, riducendo drasticamente il peso delle opere e consentendo complessi sviluppi plastico-architettonici.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">1931</span>
+        <div class="timeline__content">
+          <h3>Nasce Burlamacco</h3>
+          <p>Il pittore e grafico futurista <a href="https://it.wikipedia.org/wiki/Uberto_Bonetti">Uberto Bonetti</a> progetta la maschera simbolica di Burlamacco, accompagnata da Ondina, definendo l'identità iconografica ufficiale della manifestazione.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">1946</span>
+        <div class="timeline__content">
+          <h3>La ripresa postbellica</h3>
+          <p>A seguito dell'interruzione bellica, la manifestazione riprende la propria attività con la successiva apertura, nel 1948, dei primi hangar dedicati alla cantieristica carristica in Via Cairoli.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">2001</span>
+        <div class="timeline__content">
+          <h3>Istituzione del polo produttivo e museale della Cittadella</h3>
+          <p>Inaugurazione del complesso della Cittadella del Carnevale, progettato dall'architetto Francesco Tomassi, destinato a ospitare hangar di costruzione, laboratori didattici e il museo documentario.</p>
+        </div>
+      </li>
+      <li class="timeline__item">
+        <span class="timeline__year">2027</span>
+        <div class="timeline__content">
+          <h3>Il Carnevale Continua</h3>
+          <p>Il programma dei Corsi Mascherati del Carnevale di Viareggio 2027:</p>
+          <ul style="margin-top: 10px; padding-left: 18px; color: var(--ink-dim); font-size: 0.9rem;">
+            <li><strong>Sabato 30 gennaio – ore 16:</strong> 1° Corso Mascherato</li>
+            <li><strong>Giovedì Grasso 4 febbraio – ore 17:</strong> 2° Corso Mascherato</li>
+            <li><strong>Domenica 7 febbraio – ore 15:</strong> 3° Corso Mascherato</li>
+            <li><strong>Martedì Grasso 9 febbraio – ore 15:</strong> 4° Corso Mascherato</li>
+            <li><strong>Domenica 14 febbraio – ore 15:</strong> 5° Corso Mascherato</li>
+            <li><strong>Sabato 20 febbraio – ore 16:</strong> 6° Corso Mascherato</li>
+          </ul>
+        </div>
+      </li>
+    </ol>
+    <p class="patrimonio__source" style="text-align:center; margin-top:36px;">
+      Fonte storiografica: <a href="https://viareggio.ilcarnevale.com/carnevale-cittadella/timeline/" target="_blank" rel="noopener">Fondazione Carnevale di Viareggio — Timeline</a>
+    </p>
+  </section>
+
+  <!-- ================= 03. CHI SONO ================= -->
+  <section class="section chi-sono" id="chi-sono">
+    <div class="chi-sono__mark" aria-hidden="true">
+      <img src="marco-petrucci.jpeg" alt="Marco Petrucci" title="Marco Petrucci" class="chi-sono__img">
+    </div>
+    <div class="chi-sono__panel">
+      <span class="section__eyebrow">03</span>
+      <h2>Chi sono</h2>
+      <p>Sono Marco Petrucci, laureato triennale e attualmente studente magistrale in Informatica Umanistica presso l'Università di Pisa. Questo sito è stato realizzato come progetto d'esame per il corso di <strong>Grafica 3D per i Beni Culturali</strong>: un archivio digitale che documenta, attraverso scansioni 3D, le fasi di lavorazione di un elemento in cartapesta del Carnevale di Viareggio — dal calco in gesso al positivo, fino alla superficie dipinta.</p>
+      <p>L'obiettivo è mettere alla prova strumenti di acquisizione e visualizzazione 3D (mesh multirisoluzione <a href="https://vcg.isti.cnr.it/vcgtools/nexus/">Nexus</a>, visualizzatore <a href="https://3dhop.net/">3DHOP</a>) su un caso reale di patrimonio culturale immateriale, unendo competenze tecniche e racconto del mestiere artigiano.</p>
+    </div>
+  </section>
+
+  <!-- ================= FOOTER ================= -->
+  <footer class="footer">
+    <p>Burlamacco 3D · Esame di Grafica 3D per i Beni Culturali a.a.2025/26<br>All rights reserved | © 2026 | Created by <a href="https://linktr.ee/marco00petrucci" target="_blank">Marco Petrucci</a></p>
+  </footer>
+
+  <script type="text/javascript" src="js/script.js"></script>
+</body>
+
+</html>
