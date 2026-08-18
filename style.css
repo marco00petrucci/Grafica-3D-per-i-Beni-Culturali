@@ -745,10 +745,6 @@ a {
   cursor: pointer !important;
 }
 
-#3dhop.tdhop.is-model-fading {
-  opacity: 0.15;
-}
-
 #tdhlg {
   position: absolute;
   width: 105px;

@@ -39,6 +39,13 @@ let rotateTicking = false, lastScrollY = window.scrollY;
 let lastPointerX = 0, lastPointerY = 0;
 let phaseElements = [], currentPhaseIndex = -1;
 
+// Helper: recupero elementi ricorrenti e gestione stato "aria-pressed"
+const $id = id => document.getElementById(id);
+const $canvas = () => $id("draw-canvas");
+const setPressed = (el, state) => el?.setAttribute("aria-pressed", String(state));
+const isPressed = el => el?.getAttribute("aria-pressed") === "true";
+const debounce = (fn, delay) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), delay); }; };
+
 // ==========================================================
 // 2. INIZIALIZZAZIONE
 // ==========================================================
@@ -70,7 +77,7 @@ function initScrollAnimations() {
 }
 
 function initHeroCanvas() {
-  const canvas = document.getElementById("confetti-canvas");
+  const canvas = $id("confetti-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d"), colors = ["#D9A441", "#C1622B", "#FF4B3E", "#EDE6D8", "#C9B48A"];
   let width, height, pieces = [];
@@ -80,12 +87,7 @@ function initHeroCanvas() {
     height = canvas.height = window.innerHeight;
   };
 
-  let resizeTimer;
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(resize, 250);
-  });
-
+  window.addEventListener("resize", debounce(resize, 250));
   resize();
 
   class Confetto {
@@ -97,14 +99,14 @@ function initHeroCanvas() {
       this.aspect = Math.random() * 0.5 + 0.55;
       this.color = colors[Math.floor(Math.random() * colors.length)];
       this.opacity = Math.random() * 0.35 + 0.55;
-      this.fallSpeed = Math.random() * 0.28 + 0.14;
+      this.fallSpeed = Math.random() * 0.55 + 0.45;
       this.swayAmplitude = Math.random() * 55 + 25;
-      this.swaySpeed = Math.random() * 0.008 + 0.004;
+      this.swaySpeed = Math.random() * 0.004 + 0.002;
       this.swayOffset = Math.random() * Math.PI * 2;
       this.angle = Math.random() * Math.PI * 2;
-      this.spin = (Math.random() - 0.5) * 0.035;
+      this.spin = (Math.random() - 0.5) * 0.028;
       this.flip = Math.random() * Math.PI * 2;
-      this.flipSpeed = Math.random() * 0.03 + 0.012;
+      this.flipSpeed = Math.random() * 0.015 + 0.006;
     }
     update(t) {
       this.y += this.fallSpeed; this.angle += this.spin; this.flip += this.flipSpeed;
@@ -135,23 +137,19 @@ function initHeroCanvas() {
 // ==========================================================
 function init3DViewer() {
   if (typeof init3dhop === "function") init3dhop();
-  const canvasEl = document.getElementById("draw-canvas");
+  const canvasEl = $canvas();
   if (!canvasEl) return;
 
   presenter = new Presenter("draw-canvas");
   presenter._resizable = false;
   fixCanvasResolution();
 
-  let resizeTimer;
-  window.addEventListener("resize", () => {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(fixCanvasResolution, 250);
-  });
+  window.addEventListener("resize", debounce(fixCanvasResolution, 250));
 
   // Gestione Hotspots e Tooltips Dinamici
   let tooltipTimeout;
   presenter._onPickedSpot = (id) => {
-    const label = document.getElementById("spot-label");
+    const label = $id("spot-label");
     const spotData = HOTSPOTS_CONFIG[currentModelType]?.[id];
 
     if (!label || !spotData) return;
@@ -170,8 +168,8 @@ function init3DViewer() {
   };
 
   // Cambio cursore al passaggio del mouse sui marker
-  presenter._onEnterSpot = () => document.getElementById("draw-canvas")?.classList.add("cursor-pointer");
-  presenter._onLeaveSpot = () => document.getElementById("draw-canvas")?.classList.remove("cursor-pointer");
+  presenter._onEnterSpot = () => $canvas()?.classList.add("cursor-pointer");
+  presenter._onLeaveSpot = () => $canvas()?.classList.remove("cursor-pointer");
 
   // Tracciamento posizione click per etichette
   ["mousedown", "touchstart"].forEach(evt => {
@@ -194,7 +192,7 @@ function init3DViewer() {
 }
 
 function fixCanvasResolution() {
-  const container = document.getElementById('3dhop'), canvas = document.getElementById('draw-canvas');
+  const container = $id('3dhop'), canvas = $canvas();
   if (container && canvas) {
     container.style.width = '100%'; container.style.height = '';
     canvas.width = container.clientWidth; canvas.height = container.clientHeight;
@@ -214,28 +212,26 @@ function loadModel3D(modelType) {
   const modelHotspots = HOTSPOTS_CONFIG[modelType] || {};
   const hasHotspots = Object.keys(modelHotspots).length > 0;
 
-  document.getElementById("3dhop")?.classList.add("is-model-fading");
-
-  const label = document.getElementById("spot-label");
+  const label = $id("spot-label");
   if (label) label.hidden = true;
 
   // Ripristina l'UI di Fronte/Retro ad ogni cambio di fase
   document.querySelectorAll(".views-list .view-text-btn").forEach(btn => {
-    btn.setAttribute("aria-pressed", btn.dataset.view === "fronte" ? "true" : "false");
+    setPressed(btn, btn.dataset.view === "fronte");
   });
 
   // Mostra/Nascondi dinamicamente il pulsante hotspot
   const hotspotBtn = document.querySelector('.vtb[data-action="hotspot"]');
   if (hotspotBtn) {
     hotspotBtn.style.display = hasHotspots ? "flex" : "none";
-    hotspotBtn.setAttribute("aria-pressed", "false");
+    setPressed(hotspotBtn, false);
   }
 
   // Reset disattivazione luce e cursore al cambio tab
   const lightBtn = document.querySelector('.vtb[data-action="light"]');
   if (lightBtn) {
-    lightBtn.setAttribute("aria-pressed", "false");
-    document.getElementById("draw-canvas")?.classList.remove("cursor-move");
+    setPressed(lightBtn, false);
+    $canvas()?.classList.remove("cursor-move");
   }
 
   const sceneData = {
@@ -276,7 +272,6 @@ function loadModel3D(modelType) {
     if (!presenter?._sceneReady && (Date.now() - startTime <= 6000)) return;
     clearInterval(waitReady);
     modelLoading = false;
-    document.getElementById("3dhop")?.classList.remove("is-model-fading");
 
     // Carica l'eventuale modello accodato nel frattempo
     if (pendingModelType && pendingModelType !== currentModelType) {
@@ -320,7 +315,7 @@ function rotateOnScroll() {
     // 1. Applica la rotazione orizzontale
     state[0] += delta * 0.12;
 
-    // 2. Calcola il nuovo zoom (distanza). 
+    // 2. Calcola il nuovo zoom (distanza).
     // Un delta positivo (scroll in giù) moltiplicato per un negativo riduce la distanza -> avvicina il modello.
     let newDist = state[5] + (delta * -0.0005);
 
@@ -338,7 +333,7 @@ function rotateOnScroll() {
 
 // API NATIVA 3DHOP per sync dello slider
 function onTrackballUpdate(state) {
-  // state = [Phi, Theta, PanX, PanY, PanZ, Distance] 
+  // state = [Phi, Theta, PanX, PanY, PanZ, Distance]
   const distance = state[5];
 
   if (window.__zoomSlider && !window.__zoomSliderState?.dragging) {
@@ -368,12 +363,12 @@ function initViewerUI() {
     const lightBtn = document.querySelector('.vtb[data-action="light"]');
     if (!lightingBtn || !lightBtn) return;
 
-    const isLightingActive = lightingBtn.getAttribute("aria-pressed") === "true";
+    const isLightingActive = isPressed(lightingBtn);
     lightBtn.style.display = isLightingActive ? "flex" : "none";
     if (!isLightingActive) {
-      lightBtn.setAttribute("aria-pressed", "false");
+      setPressed(lightBtn, false);
       presenter?.enableLightTrackball(false);
-      document.getElementById("draw-canvas")?.classList.remove("cursor-move");
+      $canvas()?.classList.remove("cursor-move");
     }
   };
 
@@ -387,32 +382,27 @@ function initViewerUI() {
       if (action === "lighting") {
         const newState = !presenter.isSceneLightingEnabled();
         presenter.enableSceneLighting(newState);
-        btn.setAttribute("aria-pressed", String(newState));
+        setPressed(btn, newState);
         updateLightButtonVisibility();
       } else if (action === "light") {
-        const active = btn.getAttribute("aria-pressed") === "true";
-        const newState = !active;
-
+        const newState = !isPressed(btn);
         presenter.enableLightTrackball(newState);
-        btn.setAttribute("aria-pressed", String(newState));
+        setPressed(btn, newState);
 
         // Aggiunge o rimuove il cursore 'move' al canvas
-        const canvas = document.getElementById("draw-canvas");
-        newState ? canvas?.classList.add("cursor-move") : canvas?.classList.remove("cursor-move");
+        $canvas()?.classList.toggle("cursor-move", newState);
       } else if (action === "color") {
-        const active = btn.getAttribute("aria-pressed") === "true";
         presenter.toggleInstanceSolidColor(HOP_ALL, true);
-        btn.setAttribute("aria-pressed", String(!active));
+        setPressed(btn, !isPressed(btn));
       } else if (action === "camera") {
         presenter.toggleCameraType();
         orthographic = !orthographic;
-        btn.setAttribute("aria-pressed", String(orthographic));
+        setPressed(btn, orthographic);
       } else if (action === "hotspot") {
-        const active = btn.getAttribute("aria-pressed") === "true";
-        const newState = !active;
+        const newState = !isPressed(btn);
         presenter.setSpotVisibility(HOP_ALL, newState, true);
         presenter.enableOnHover(newState);
-        btn.setAttribute("aria-pressed", String(newState));
+        setPressed(btn, newState);
       } else if (action === "screenshot") presenter.saveScreenshot();
     });
   });
@@ -422,8 +412,8 @@ function initViewerUI() {
   viewButtons.forEach(btn => {
     btn.addEventListener("click", e => {
       e.preventDefault();
-      viewButtons.forEach(b => b.setAttribute("aria-pressed", "false"));
-      btn.setAttribute("aria-pressed", "true");
+      viewButtons.forEach(b => setPressed(b, false));
+      setPressed(btn, true);
 
       const viewType = btn.dataset.view;
       if (presenter && VIEWS_TRACKBALL[viewType]) presenter.animateToTrackballPosition(VIEWS_TRACKBALL[viewType]);
@@ -431,7 +421,7 @@ function initViewerUI() {
   });
 
   // CONTROLLI ZOOM CON CALCOLO MATEMATICO DIRETTO
-  const zoomSlider = document.getElementById("viewer-zoom-slider");
+  const zoomSlider = $id("viewer-zoom-slider");
   if (zoomSlider) {
     let sliderDragging = false;
 
@@ -459,9 +449,9 @@ function initViewerUI() {
   }
 
   // FULLSCREEN
-  const fsBtn = document.getElementById("viewer-fullscreen");
-  const fsIcon = document.getElementById("fullscreen-icon");
-  const viewerEl = document.getElementById("3dhop");
+  const fsBtn = $id("viewer-fullscreen");
+  const fsIcon = $id("fullscreen-icon");
+  const viewerEl = $id("3dhop");
   const MAXIMIZE = '<path d="M4 9V5a1 1 0 0 1 1-1h4M20 9V5a1 1 0 0 0-1-1h-4M4 15v4a1 1 0 0 0 1 1h4M20 15v4a1 1 0 0 1-1 1h-4" />';
   const MINIMIZE = '<path d="M9 4v4a1 1 0 0 1-1 1H4M15 4v4a1 1 0 0 0 1 1h4M9 20v-4a1 1 0 0 0-1-1H4M15 20v-4a1 1 0 0 1 1-1h4" />';
 
@@ -474,7 +464,7 @@ function initViewerUI() {
     document.addEventListener("fullscreenchange", () => {
       const isFs = !!document.fullscreenElement;
       if (fsIcon) fsIcon.innerHTML = isFs ? MINIMIZE : MAXIMIZE;
-      fsBtn.setAttribute("aria-pressed", String(isFs));
+      setPressed(fsBtn, isFs);
       fixCanvasResolution();
     });
   }
