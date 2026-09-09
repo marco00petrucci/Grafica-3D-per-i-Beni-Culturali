@@ -7,21 +7,8 @@ const MODEL_CONFIG = {
   colore: { url: "models/colore.nxz", color: [1.0, 1.0, 1.0], vertexColors: false }
 };
 
-// Matrice di rotazione per correggere il conflitto assi NXZ/PLY.
-const fixMatrix = SglMat4.rotationAngleAxis(sglDegToRad(-90), [1.0, 0.0, 0.0]);
-
-// Configurazione Hotspot divisa per fase
-const HOTSPOTS_CONFIG = {
-  calco: {
-    "spot_gesso": { label: "Forma in gesso", mesh: "marker_gesso", color: [1.0, 0.3, 0.24], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 },
-    "spot_polistirolo": { label: "Protezione in polistirolo espanso", mesh: "marker_polistirolo", color: [0.2, 0.6, 0.9], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 },
-    "spot_legno": { label: "Struttura in legno", mesh: "marker_legno", color: [0.3, 0.8, 0.3], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 }
-  },
-  cartapesta: {},
-  colore: {
-    "anno_opera": { label: "2021 indica l'anno di realizzazione dell'opera", mesh: "marker_2021", color: [0.9, 0.4, 0.1], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 }
-  }
-};
+let fixMatrix = null;
+let HOTSPOTS_CONFIG = {};
 
 // Mappatura viste 3DHOP [Phi, Theta, PanX, PanY, PanZ, Distance]
 const VIEWS_TRACKBALL = {
@@ -38,6 +25,8 @@ let currentModelType = null, pendingModelType = null, modelLoading = false;
 let rotateTicking = false, lastScrollY = window.scrollY;
 let lastPointerX = 0, lastPointerY = 0;
 let phaseElements = [], currentPhaseIndex = -1;
+let isOrthographic = false;
+let zoomSliderEl = null, isSliderDragging = false;
 
 // Helper: recupero elementi ricorrenti e gestione stato "aria-pressed"
 const $id = id => document.getElementById(id);
@@ -50,6 +39,22 @@ const debounce = (fn, delay) => { let t; return (...a) => { clearTimeout(t); t =
 // 2. INIZIALIZZAZIONE
 // ==========================================================
 $(document).ready(() => {
+  // Matrice di rotazione per correggere il conflitto assi NXZ
+  fixMatrix = SglMat4.rotationAngleAxis(sglDegToRad(-90), [1.0, 0.0, 0.0]);
+
+  // Configurazione Hotspot divisa per fase
+  HOTSPOTS_CONFIG = {
+    calco: {
+      "spot_gesso": { label: "Forma in gesso", mesh: "marker_gesso", color: [1.0, 0.3, 0.24], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 },
+      "spot_polistirolo": { label: "Protezione in polistirolo espanso", mesh: "marker_polistirolo", color: [0.2, 0.6, 0.9], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 },
+      "spot_legno": { label: "Struttura in legno", mesh: "marker_legno", color: [0.3, 0.8, 0.3], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 }
+    },
+    cartapesta: {},
+    colore: {
+      "anno_opera": { label: "2021 indica l'anno di realizzazione dell'opera", mesh: "marker_2021", color: [0.9, 0.4, 0.1], transform: { matrix: fixMatrix }, alpha: 0.8, alphaHigh: 1.0 }
+    }
+  };
+
   initScrollAnimations();
   initHeroCanvas();
   init3DViewer();
@@ -61,7 +66,7 @@ $(document).ready(() => {
 // 3. ANIMAZIONI SCROLL E HERO CANVAS
 // ==========================================================
 function initScrollAnimations() {
-  const elements = document.querySelectorAll(".section__label, .section__body, .step, .timeline__item, .patrimonio__note");
+  const elements = document.querySelectorAll(".section__label, .step, .timeline__item, .patrimonio__note");
   elements.forEach(el => el.classList.add("reveal"));
 
   const obs = new IntersectionObserver(entries => {
@@ -77,6 +82,9 @@ function initScrollAnimations() {
 }
 
 function initHeroCanvas() {
+  // Evita carichi inutili della GPU su dispositivi mobili
+  if (window.innerWidth < 768) return;
+
   const canvas = $id("confetti-canvas");
   if (!canvas) return;
   const ctx = canvas.getContext("2d"), colors = ["#D9A441", "#C1622B", "#FF4B3E", "#EDE6D8", "#C9B48A"];
@@ -123,7 +131,7 @@ function initHeroCanvas() {
     }
   }
 
-  pieces = Array.from({ length: window.innerWidth < 768 ? 30 : 55 }, () => new Confetto(false));
+  pieces = Array.from({ length: 55 }, () => new Confetto(false));
   const animate = (t) => {
     ctx.clearRect(0, 0, width, height);
     pieces.forEach(p => { p.update(t); p.draw(); });
@@ -203,7 +211,7 @@ function fixCanvasResolution() {
 function loadModel3D(modelType) {
   if (!presenter || modelType === currentModelType) return;
   // Non sovrapporre setScene multipli
-  if (modelLoading) return pendingModelType = modelType, void 0;
+  if (modelLoading) { pendingModelType = modelType; return; }
 
   modelLoading = true;
   currentModelType = modelType;
@@ -227,12 +235,24 @@ function loadModel3D(modelType) {
     setPressed(hotspotBtn, false);
   }
 
+  // Ripristina graficamente il bottone Illuminazione (acceso)
+  const lightingBtn = document.querySelector('.vtb[data-action="lighting"]');
+  if (lightingBtn) {
+    setPressed(lightingBtn, true);
+  }
+
   // Reset disattivazione luce e cursore al cambio tab
   const lightBtn = document.querySelector('.vtb[data-action="light"]');
   if (lightBtn) {
     setPressed(lightBtn, false);
+    lightBtn.style.display = "flex";
     $canvas()?.classList.remove("cursor-move");
   }
+
+  // Ripristina graficamente Camera (prospettica) e Modalità Colore (normale)
+  isOrthographic = false;
+  setPressed(document.querySelector('.vtb[data-action="camera"]'), false);
+  setPressed(document.querySelector('.vtb[data-action="color"]'), false);
 
   const sceneData = {
     meshes: { "mesh_current": { url: cfg.url } },
@@ -254,13 +274,16 @@ function loadModel3D(modelType) {
   if (hasHotspots) {
     // Estrapola tutti i nomi univoci delle mesh usate nei marker di questa fase
     const uniqueMarkers = new Set(Object.values(modelHotspots).map(spot => spot.mesh));
-    // Inietta ogni file .ply necessario dentro le meshes della scena
-    uniqueMarkers.forEach(meshId => sceneData.meshes[meshId] = { url: `models/${meshId}.ply` });
+    // Inietta ogni file .nxz necessario dentro le meshes della scena
+    uniqueMarkers.forEach(meshId => sceneData.meshes[meshId] = { url: `models/${meshId}.nxz` });
     sceneData.spots = modelHotspots;
   }
 
   try {
     presenter.setScene(sceneData);
+    presenter.enableSceneLighting(true);
+    presenter.enableLightTrackball(false);
+
     if (hasHotspots) {
       presenter.setSpotVisibility(HOP_ALL, false, true);
       presenter.enableOnHover(true);
@@ -331,24 +354,23 @@ function rotateOnScroll() {
   }
 }
 
-// API NATIVA 3DHOP per sync dello slider
+// Callback nativa 3DHOP per sincronizzare lo slider dello zoom
 function onTrackballUpdate(state) {
   // state = [Phi, Theta, PanX, PanY, PanZ, Distance]
   const distance = state[5];
 
-  if (window.__zoomSlider && !window.__zoomSliderState?.dragging) {
+  if (zoomSliderEl && !isSliderDragging) {
     const [min, max] = TRACKBALL_DIST_RANGE;
     const t = 1 - (Math.min(max, Math.max(min, distance)) - min) / (max - min);
-    window.__zoomSlider.value = Math.round(t * 100);
+    zoomSliderEl.value = Math.round(t * 100);
   }
 }
 
 // ==========================================================
-// 5. INTERFACCIA UTENTE (Event Listeners e UI unificata)
+// 5. INTERFACCIA UTENTE
 // ==========================================================
 function initViewerUI() {
-
-  // TABS PRINCIPALI (Cambio fase manuale)
+  // Tabs cambio modello
   document.querySelectorAll(".viewer-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       const modelType = tab.dataset.model;
@@ -372,8 +394,10 @@ function initViewerUI() {
     }
   };
 
+  // Sincronizza lo stato iniziale del bottone luce
+  updateLightButtonVisibility();
+
   // TOOLBAR PRINCIPALE (Comandi Scena)
-  let orthographic = false;
   document.querySelectorAll("#viewer-toolbar .vtb[data-action]").forEach(btn => {
     btn.addEventListener("click", () => {
       if (!presenter) return;
@@ -395,9 +419,9 @@ function initViewerUI() {
         presenter.toggleInstanceSolidColor(HOP_ALL, true);
         setPressed(btn, !isPressed(btn));
       } else if (action === "camera") {
+        isOrthographic = !isOrthographic;
         presenter.toggleCameraType();
-        orthographic = !orthographic;
-        setPressed(btn, orthographic);
+        setPressed(btn, isOrthographic);
       } else if (action === "hotspot") {
         const newState = !isPressed(btn);
         presenter.setSpotVisibility(HOP_ALL, newState, true);
@@ -421,14 +445,12 @@ function initViewerUI() {
   });
 
   // CONTROLLI ZOOM CON CALCOLO MATEMATICO DIRETTO
-  const zoomSlider = $id("viewer-zoom-slider");
-  if (zoomSlider) {
-    let sliderDragging = false;
+  zoomSliderEl = $id("viewer-zoom-slider");
+  if (zoomSliderEl) {
+    zoomSliderEl.addEventListener("input", () => {
+      if (!presenter?.getTrackballPosition) return;
 
-    zoomSlider.addEventListener("input", () => {
-      if (!presenter || !presenter.getTrackballPosition) return;
-
-      const value = Number(zoomSlider.value);
+      const value = Number(zoomSliderEl.value);
       const [min, max] = TRACKBALL_DIST_RANGE;
 
       // Calcola la distanza esatta proporzionale al range dello slider (0-100)
@@ -440,12 +462,8 @@ function initViewerUI() {
       presenter.setTrackballPosition(state);
     });
 
-    zoomSlider.addEventListener("pointerdown", () => { sliderDragging = true; });
-    window.addEventListener("pointerup", () => { sliderDragging = false; });
-
-    // Esposizione per sync bidirezionale con rotella/pinch (onTrackballUpdate)
-    window.__zoomSlider = zoomSlider;
-    window.__zoomSliderState = { get dragging() { return sliderDragging; } };
+    zoomSliderEl.addEventListener("pointerdown", () => { isSliderDragging = true; });
+    window.addEventListener("pointerup", () => { isSliderDragging = false; });
   }
 
   // FULLSCREEN

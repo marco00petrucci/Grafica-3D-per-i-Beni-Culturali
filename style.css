@@ -799,7 +799,7 @@ a {
   color: #1a0d09;
 }
 
-/* Toolbar Principale */
+/* Toolbar e Controlli */
 .viewer-toolbar,
 .views-list {
   position: absolute;
@@ -810,14 +810,14 @@ a {
   z-index: 5;
 }
 
+/* Toolbar Principale (In alto) */
 .viewer-toolbar {
   top: 14px;
   flex-direction: row;
-  left: 50%;
   gap: 6px;
 }
 
-/* Lista viste */
+/* Lista viste, zoom e fullscreen (In basso) */
 .views-list {
   bottom: 14px;
   gap: 4px;
@@ -835,7 +835,7 @@ a {
   color: var(--ink-dim);
   font-family: var(--body);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   padding: 8px 18px;
@@ -861,6 +861,7 @@ a {
   background: rgba(217, 164, 65, 0.25);
   border-radius: 100px;
   cursor: pointer;
+  margin: 0 4px;
 }
 
 .viewer-zoom__slider::-webkit-slider-thumb {
@@ -987,30 +988,30 @@ a {
 
 @media (max-width: 700px) {
   .timeline::before {
-    left: 34px;
+    left: 20px;
     transform: none;
   }
 
   .timeline__item {
-    grid-template-columns: 70px 1fr !important;
+    display: flex !important;
+    flex-direction: column !important;
+    margin-bottom: 30px;
   }
 
   .timeline__item .timeline__year {
-    grid-column: 1 !important;
-    text-align: right !important;
-    padding: 4px 20px 0 0 !important;
+    text-align: left !important;
+    padding: 0 0 4px 45px !important;
   }
 
   .timeline__item .timeline__content {
-    grid-column: 2 !important;
-    padding: 4px 0 4px 30px !important;
     text-align: left !important;
+    padding: 0 0 0 45px !important;
   }
 
   .timeline__item .timeline__content::before {
-    left: -6px !important;
+    left: 15px !important;
     right: auto !important;
-    top: 6px !important;
+    top: 4px !important;
   }
 }
 
@@ -1113,6 +1114,10 @@ a {
     display: none;
   }
 
+  .hero {
+    min-height: 65svh;
+  }
+
   .nav {
     justify-content: center;
     padding: 12px 16px;
@@ -1145,15 +1150,5 @@ a {
   /* Riduce l'altezza del canvas per far spazio alla UI orizzontale */
   .tdhop {
     height: 450px;
-  }
-
-  .views-list {
-    flex-wrap: wrap;
-    width: 90%;
-    justify-content: center;
-  }
-
-  .viewer-zoom__slider {
-    width: 50px;
   }
 }
