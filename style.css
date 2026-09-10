@@ -139,12 +139,6 @@ a {
   text-decoration: none;
 }
 
-.nav__logo {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
-
 .nav__title {
   font-family: var(--display);
   font-weight: 700;

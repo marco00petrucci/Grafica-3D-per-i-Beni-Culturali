@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Burlamacco 3D — Digitalizzazione e Fasi di Lavorazione della Cartapesta di Viareggio</title>
   <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="icon" href="favicon.png" type="image/png" />
+  <link rel="icon" href="favicon.avif" type="image/avif" />
 
   <!--FONTS-->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -17,24 +17,24 @@
   <link type="text/css" rel="stylesheet" href="style.css" />
 
   <!--SPIDERGL-->
-  <script type="text/javascript" src="js/spidergl.js"></script>
+  <script type="text/javascript" src="js/spidergl.js" defer></script>
 
   <!--JQUERY-->
-  <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquery.js" defer></script>
 
   <!--PRESENTER-->
-  <script type="text/javascript" src="js/presenter.js"></script>
+  <script type="text/javascript" src="js/presenter.js" defer></script>
 
   <!--3D MODELS LOADING AND RENDERING-->
-  <script type="text/javascript" src="js/nexus.js"></script>
-  <script type="text/javascript" src="js/ply.js"></script>
+  <script type="text/javascript" src="js/nexus.js" defer></script>
+  <script type="text/javascript" src="js/ply.js" defer></script>
 
   <!--TRACKBALLS-->
-  <script type="text/javascript" src="js/trackball_turntable.js"></script>
-  <script type="text/javascript" src="js/trackball_turntable_pan.js"></script>
+  <script type="text/javascript" src="js/trackball_turntable.js" defer></script>
+  <script type="text/javascript" src="js/trackball_turntable_pan.js" defer></script>
 
   <!--UTILITY-->
-  <script type="text/javascript" src="js/init.js"></script>
+  <script type="text/javascript" src="js/init.js" defer></script>
 </head>
 
 <body>
@@ -42,7 +42,7 @@
   <!-- ================= NAV ================= -->
   <nav class="nav">
     <a href="#" class="nav__brand">
-      <img src="favicon.png" alt="Burlamacco 3D" class="nav__logo">
+      <img src="favicon.avif" alt="Burlamacco 3D" class="nav__logo" width="28" height="28" />
       <span class="nav__title">Burlamacco 3D</span>
     </a>
     <div class="nav__links">
@@ -54,7 +54,7 @@
 
   <!-- ================= HERO ================= -->
   <header class="hero" id="hero">
-    <video class="hero__video" autoplay muted loop playsinline poster="">
+    <video class="hero__video" autoplay muted loop playsinline poster="burlamacca.avif">
       <source src="burlamacca.mp4" type="video/mp4" />
     </video>
     <div class="hero__overlay" aria-hidden="true"></div>
@@ -301,7 +301,7 @@
     <p>Burlamacco 3D · Esame di Grafica 3D per i Beni Culturali a.a.2025/26<br>All rights reserved | © 2026 | Created by <a href="https://linktr.ee/marco00petrucci" target="_blank">Marco Petrucci</a></p>
   </footer>
 
-  <script type="text/javascript" src="js/script.js"></script>
+  <script type="text/javascript" src="js/script.js" defer></script>
 </body>
 
 </html>

@@ -327,6 +327,10 @@ function rotateOnScroll() {
   rotateTicking = false;
   updateActivePhase();
 
+  // Ferma il calcolo se la sezione non è visibile
+  const viewerRect = document.getElementById("patrimonio").getBoundingClientRect();
+  if (viewerRect.bottom < 0 || viewerRect.top > window.innerHeight) return;
+
   if (!presenter?.getTrackballPosition) return;
   const scrollY = window.scrollY, delta = scrollY - lastScrollY;
   lastScrollY = scrollY;
